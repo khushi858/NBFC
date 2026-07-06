@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Setu Finance — Loans, EMI Calculator &amp; Application</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,450&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#131A2B; --ink-soft:#4B5262; --paper:#ECEAE0; --paper-raised:#F5F3EA;
+  --brass:#B9873A; --brass-deep:#8F6423; --emerald:#215F52; --rust:#8A3B2E;
+  --line:#CBC5B2; --shadow:0 18px 40px rgba(19,26,43,0.12);
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:'IBM Plex Sans',sans-serif;line-height:1.6;}
+h1,h2,h3,h4{font-family:'Fraunces',serif;margin:0;font-weight:600;letter-spacing:-0.01em;}
+.mono{font-family:'IBM Plex Mono',monospace;}
+a{color:inherit;}
+.wrap{max-width:1180px;margin:0 auto;padding:0 32px;}
+:focus-visible{outline:2px solid var(--brass); outline-offset:2px;}
+section{scroll-margin-top:76px;}
+
+/* NAV */
+nav{position:sticky;top:0;z-index:60;background:rgba(236,234,224,0.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);}
+.nav-inner{max-width:1180px;margin:0 auto;padding:14px 32px;display:flex;align-items:center;justify-content:space-between;gap:20px;}
+.brand{display:flex;align-items:center;gap:10px;font-family:'Fraunces',serif;font-weight:700;font-size:1.1rem;text-decoration:none;}
+.brand-mark{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--ink);display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:0.62rem;font-weight:600;}
+.navlinks{display:none;gap:22px;list-style:none;margin:0;padding:0;font-size:0.83rem;font-weight:500;}
+.navlinks a{text-decoration:none;color:var(--ink-soft);}
+.navlinks a:hover{color:var(--brass-deep);}
+@media(min-width:1020px){.navlinks{display:flex;}}
+.nav-cta{display:flex;gap:10px;}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 18px;font-size:0.82rem;font-weight:600;text-decoration:none;border-radius:3px;border:1.5px solid transparent;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;transition:transform .15s,background .15s;}
+.btn:hover{transform:translateY(-1px);}
+.btn-primary{background:var(--brass);color:var(--ink);}
+.btn-primary:hover{background:#CC9A4C;}
+.btn-line{border-color:var(--ink);background:transparent;color:var(--ink);}
+.btn-line:hover{border-color:var(--brass-deep);color:var(--brass-deep);}
+.btn-full{width:100%;justify-content:center;padding:13px;font-size:0.9rem;}
+.btn-ghost-dark{border-color:rgba(236,234,224,0.4);color:#F0EEE3;background:transparent;}
+.btn-ghost-dark:hover{border-color:var(--brass);color:var(--brass);}
+
+/* HERO */
+.hero{background:var(--ink);color:var(--paper);padding:76px 0 64px;}
+.hero-grid{display:grid;grid-template-columns:1.1fr 0.9fr;gap:50px;align-items:center;}
+@media(max-width:900px){.hero-grid{grid-template-columns:1fr;}}
+.eyebrow{font-family:'IBM Plex Mono',monospace;font-size:0.72rem;letter-spacing:0.1em;color:var(--brass);text-transform:uppercase;margin-bottom:18px;}
+.hero h1{font-size:clamp(2rem,4.4vw,3.1rem);color:#F7F5EC;max-width:16ch;}
+.hero p.lede{margin-top:18px;max-width:48ch;color:rgba(236,234,224,0.78);font-size:1.02rem;}
+.hero-cta{margin-top:30px;display:flex;gap:14px;flex-wrap:wrap;}
+.trust-row{margin-top:36px;display:flex;gap:26px;flex-wrap:wrap;font-family:'IBM Plex Mono',monospace;font-size:0.72rem;color:rgba(236,234,224,0.6);}
+
+/* Quick EMI teaser card in hero */
+.mini-emi{background:var(--paper-raised);color:var(--ink);border-radius:4px;padding:26px;box-shadow:var(--shadow);}
+.mini-emi h4{font-size:1rem;margin-bottom:16px;}
+.mini-emi label{display:block;font-size:0.78rem;color:var(--ink-soft);margin-bottom:6px;}
+.mini-emi .row{margin-bottom:16px;}
+.mini-emi input[type=range]{width:100%;accent-color:var(--brass-deep);}
+.mini-emi .valline{display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:0.82rem;margin-top:4px;}
+.mini-emi .result{border-top:1px solid var(--line);margin-top:16px;padding-top:16px;}
+.mini-emi .result .big{font-family:'Fraunces',serif;font-size:1.9rem;color:var(--brass-deep);}
+.mini-emi .result .cap{font-family:'IBM Plex Mono',monospace;font-size:0.7rem;color:var(--ink-soft);text-transform:uppercase;letter-spacing:0.05em;}
+
+/* SECTION HEAD */
+.sec{padding:80px 0;border-bottom:1px solid var(--line);}
+.sec-head{margin-bottom:40px;max-width:70ch;}
+.sec-head .tag{font-family:'IBM Plex Mono',monospace;font-size:0.72rem;color:var(--brass-deep);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px;display:block;}
+.sec-head h2{font-size:clamp(1.6rem,3vw,2.2rem);margin-bottom:10px;}
+.sec-head p{color:var(--ink-soft);font-size:1rem;}
+
+/* PRODUCTS */
+.products-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);box-shadow:var(--shadow);}
+@media(max-width:900px){.products-grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:600px){.products-grid{grid-template-columns:1fr;}}
+.product-card{background:var(--paper-raised);padding:26px 24px;display:flex;flex-direction:column;gap:10px;}
+.product-card h4{font-size:1.05rem;}
+.product-card .rate{font-family:'IBM Plex Mono',monospace;font-size:0.85rem;color:var(--brass-deep);font-weight:600;}
+.product-card p{font-size:0.86rem;color:var(--ink-soft);margin:0;flex:1;}
+.product-card .apply-link{font-size:0.8rem;font-weight:600;color:var(--emerald);text-decoration:none;margin-top:4px;}
+.product-card .apply-link:hover{color:var(--brass-deep);}
+
+/* RATES + ELIGIBILITY TABLE */
+.rates-scroll{overflow-x:auto;box-shadow:var(--shadow);background:var(--paper-raised);}
+table.rates{width:100%;border-collapse:collapse;font-size:0.9rem;min-width:640px;}
+table.rates th,table.rates td{text-align:left;padding:13px 16px;border-bottom:1px solid var(--line);}
+table.rates thead th{font-family:'IBM Plex Mono',monospace;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--ink-soft);border-bottom:2px solid var(--ink);}
+
+/* EMI CALCULATOR FULL */
+.calc-grid{display:grid;grid-template-columns:1fr 1fr;gap:40px;}
+@media(max-width:860px){.calc-grid{grid-template-columns:1fr;}}
+.calc-card{background:var(--paper-raised);padding:32px;box-shadow:var(--shadow);}
+.calc-card .row{margin-bottom:24px;}
+.calc-card label{display:flex;justify-content:space-between;font-size:0.85rem;color:var(--ink-soft);margin-bottom:8px;}
+.calc-card label .v{font-family:'IBM Plex Mono',monospace;color:var(--ink);font-weight:600;}
+.calc-card input[type=range]{width:100%;accent-color:var(--brass-deep);}
+.result-card{background:var(--ink);color:var(--paper);padding:32px;display:flex;flex-direction:column;justify-content:center;box-shadow:var(--shadow);}
+.result-card .emi-big{font-family:'Fraunces',serif;font-size:2.6rem;color:#F7F5EC;}
+.result-card .emi-cap{font-family:'IBM Plex Mono',monospace;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--brass);margin-bottom:8px;}
+.breakup{display:flex;gap:20px;margin-top:26px;flex-wrap:wrap;}
+.breakup .b{flex:1;min-width:130px;}
+.breakup .b .lbl{font-family:'IBM Plex Mono',monospace;font-size:0.68rem;color:rgba(236,234,224,0.55);text-transform:uppercase;}
+.breakup .b .val{font-size:1.1rem;font-weight:600;margin-top:4px;}
+.bar{height:10px;border-radius:6px;background:rgba(236,234,224,0.15);margin-top:24px;overflow:hidden;display:flex;}
+.bar .p{background:var(--brass);height:100%;}
+.bar .i{background:var(--emerald);height:100%;}
+.legend{display:flex;gap:18px;margin-top:10px;font-size:0.76rem;color:rgba(236,234,224,0.7);}
+.legend span{display:flex;align-items:center;gap:6px;}
+.dot{width:9px;height:9px;border-radius:50%;display:inline-block;}
+
+/* APPLY WIZARD */
+.wizard{background:var(--paper-raised);box-shadow:var(--shadow);}
+.wizard-steps{display:flex;overflow-x:auto;border-bottom:1px solid var(--line);}
+.wstep{flex:1;min-width:120px;padding:16px 14px;text-align:center;font-size:0.76rem;font-family:'IBM Plex Mono',monospace;color:var(--ink-soft);border-right:1px solid var(--line);cursor:default;position:relative;}
+.wstep:last-child{border-right:none;}
+.wstep .num{display:block;width:22px;height:22px;line-height:22px;border-radius:50%;border:1.5px solid var(--line);margin:0 auto 6px;font-weight:600;}
+.wstep.active{color:var(--ink);}
+.wstep.active .num{background:var(--brass);border-color:var(--brass);color:var(--ink);}
+.wstep.done .num{background:var(--emerald);border-color:var(--emerald);color:#fff;}
+.wpane{padding:36px;display:none;}
+.wpane.active{display:block;}
+.field-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+@media(max-width:640px){.field-grid{grid-template-columns:1fr;}}
+.field{display:flex;flex-direction:column;gap:6px;}
+.field.full{grid-column:1/-1;}
+.field label{font-size:0.82rem;font-weight:600;color:var(--ink);}
+.field .hint{font-size:0.74rem;color:var(--ink-soft);}
+.field input, .field select, .field textarea{
+  padding:11px 12px;border:1px solid var(--line);border-radius:3px;background:#fff;
+  font-family:'IBM Plex Sans',sans-serif;font-size:0.92rem;color:var(--ink);
+}
+.field input:focus, .field select:focus, .field textarea:focus{border-color:var(--brass-deep);}
+.upload-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;}
+@media(max-width:640px){.upload-grid{grid-template-columns:1fr;}}
+.upload-box{border:1.5px dashed var(--line);border-radius:4px;padding:18px;text-align:center;background:#fff;}
+.upload-box .name{font-size:0.82rem;font-weight:600;margin-bottom:6px;}
+.upload-box input{font-size:0.78rem;width:100%;}
+.wizard-actions{display:flex;justify-content:space-between;padding:24px 36px;border-top:1px solid var(--line);}
+.review-list{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:10px 30px;}
+@media(max-width:640px){.review-list{grid-template-columns:1fr;}}
+.review-list li{display:flex;justify-content:space-between;border-bottom:1px dashed var(--line);padding:8px 0;font-size:0.88rem;}
+.review-list li span:first-child{color:var(--ink-soft);}
+.review-list li span:last-child{font-weight:600;text-align:right;}
+.embed-slot{margin-top:26px;border:1.5px dashed var(--brass-deep);border-radius:4px;padding:20px;background:rgba(185,135,58,0.06);}
+.embed-slot .tag2{font-family:'IBM Plex Mono',monospace;font-size:0.7rem;color:var(--brass-deep);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:8px;}
+.embed-slot iframe{width:100%;height:0;border:none;display:none;}
+.embed-slot.live iframe{height:640px;display:block;background:#fff;border-radius:3px;}
+.embed-slot p{font-size:0.85rem;color:var(--ink-soft);margin:0;}
+
+/* PORTAL / LOGIN */
+.portal-grid{display:grid;grid-template-columns:1fr 1fr;gap:40px;}
+@media(max-width:860px){.portal-grid{grid-template-columns:1fr;}}
+.portal-card{background:var(--paper-raised);padding:32px;box-shadow:var(--shadow);}
+.portal-card h4{font-size:1.1rem;margin-bottom:16px;}
+.portal-feature-list{list-style:none;margin:0 0 24px;padding:0;}
+.portal-feature-list li{display:flex;gap:10px;font-size:0.9rem;color:var(--ink-soft);padding:8px 0;border-top:1px dashed var(--line);}
+.portal-feature-list li:first-child{border-top:none;}
+.portal-feature-list li::before{content:"→";color:var(--brass-deep);font-weight:600;}
+
+/* FAQ */
+.faq-item{border-bottom:1px solid var(--line);}
+.faq-q{width:100%;text-align:left;background:none;border:none;padding:20px 4px;font-family:'Fraunces',serif;font-size:1.02rem;font-weight:600;cursor:pointer;display:flex;justify-content:space-between;align-items:center;color:var(--ink);}
+.faq-q .plus{font-family:'IBM Plex Mono',monospace;color:var(--brass-deep);font-size:1.1rem;}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .25s ease;}
+.faq-a p{padding:0 4px 20px;color:var(--ink-soft);font-size:0.92rem;max-width:70ch;margin:0;}
+.faq-item.open .faq-a{max-height:200px;}
+
+/* TESTIMONIALS */
+.testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
+@media(max-width:860px){.testi-grid{grid-template-columns:1fr;}}
+.testi-card{background:var(--paper-raised);padding:26px;box-shadow:var(--shadow);}
+.testi-card p.quote{font-family:'Fraunces',serif;font-style:italic;font-size:1.02rem;margin-bottom:16px;}
+.testi-card .who{font-size:0.82rem;color:var(--ink-soft);font-family:'IBM Plex Mono',monospace;}
+
+/* CONTACT */
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:40px;}
+@media(max-width:860px){.contact-grid{grid-template-columns:1fr;}}
+
+/* DEV NOTES PANEL */
+.devnotes{background:var(--ink);color:var(--paper);}
+.devnotes summary{cursor:pointer;padding:18px 0;font-family:'IBM Plex Mono',monospace;font-size:0.85rem;color:var(--brass);list-style:none;display:flex;align-items:center;gap:10px;}
+.devnotes summary::-webkit-details-marker{display:none;}
+.devnotes summary::before{content:"▸";}
+.devnotes[open] summary::before{content:"▾";}
+.devnotes .content{padding-bottom:30px;color:rgba(236,234,224,0.78);font-size:0.9rem;}
+.devnotes .content h5{font-family:'IBM Plex Mono',monospace;color:#F7F5EC;font-size:0.85rem;margin:18px 0 8px;}
+.devnotes pre{background:rgba(0,0,0,0.3);padding:16px;border-radius:4px;overflow-x:auto;font-family:'IBM Plex Mono',monospace;font-size:0.78rem;line-height:1.6;color:#E8E4D6;}
+.devnotes ol{padding-left:20px;}
+.devnotes li{margin-bottom:8px;}
+
+footer{background:var(--paper-raised);padding:40px 0;}
+.fine{font-size:0.78rem;color:var(--ink-soft);display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a class="brand" href="#top"><span class="brand-mark">S</span>Setu Finance</a>
+    <ul class="navlinks">
+      <li><a href="#products">Loan Products</a></li>
+      <li><a href="#emi">EMI Calculator</a></li>
+      <li><a href="#apply">Apply</a></li>
+      <li><a href="#portal">Track / Login</a></li>
+      <li><a href="#faq">FAQs</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <div class="nav-cta">
+      <a class="btn btn-line" href="#portal">Customer Login</a>
+      <a class="btn btn-primary" href="#apply">Apply for Loan</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="wrap hero-grid">
+    <div>
+      <p class="eyebrow">Personal · Business · Gold · MSME lending</p>
+      <h1>Credit that reaches where a bank branch stops.</h1>
+      <p class="lede">Apply online, get a decision fast, and track every rupee from sanction to closure — personal loans, business capital, gold loans and more, underwritten for real income, not just a payslip.</p>
+      <div class="hero-cta">
+        <a class="btn btn-primary" href="#apply">Apply for a loan</a>
+        <a class="btn btn-ghost-dark" href="#emi">Check your EMI</a>
+      </div>
+      <div class="trust-row">
+        <span>Regd. RBI Act 1934 · §45-IA</span>
+        <span>NBFC-ICC</span>
+        <span>Paperless eKYC</span>
+      </div>
+    </div>
+
+    <div class="mini-emi">
+      <h4>Quick EMI check</h4>
+      <div class="row">
+        <label>Loan amount <span class="v" id="hAmtV">₹3,00,000</span></label>
+        <input type="range" id="hAmt" min="25000" max="2000000" step="5000" value="300000">
+      </div>
+      <div class="row">
+        <label>Tenure (months) <span class="v" id="hTenV">24</span></label>
+        <input type="range" id="hTen" min="3" max="84" step="1" value="24">
+      </div>
+      <div class="row">
+        <label>Interest rate (p.a.) <span class="v" id="hRateV">16%</span></label>
+        <input type="range" id="hRate" min="10" max="28" step="0.5" value="16">
+      </div>
+      <div class="result">
+        <div class="cap">Estimated monthly EMI</div>
+        <div class="big mono" id="hEmi">₹14,540</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- LOAN PRODUCTS -->
+<section class="sec" id="products">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="tag">Loan products</span>
+      <h2>Seven products, one underwriting philosophy</h2>
+      <p>Rates shown are indicative ranges — your final rate depends on credit profile, tenure and product.</p>
+    </div>
+    <div class="products-grid">
+      <div class="product-card">
+        <h4>Personal Loan</h4>
+        <span class="rate">14% – 22% p.a. · up to ₹15L</span>
+        <p>Collateral-free credit for weddings, medical needs, travel or debt consolidation. Tenure up to 60 months.</p>
+        <a class="apply-link" href="#apply" data-product="Personal Loan">Apply for this →</a>
+      </div>
+      <div class="product-card">
+        <h4>Business Loan</h4>
+        <span class="rate">15% – 24% p.a. · up to ₹50L</span>
+        <p>Working capital and expansion funding for proprietorships, partnerships and private companies.</p>
+        <a class="apply-link" href="#apply" data-product="Business Loan">Apply for this →</a>
+      </div>
+      <div class="product-card">
+        <h4>Gold Loan</h4>
+        <span class="rate">10% – 15% p.a. · same-day</span>
+        <p>Instant liquidity against gold jewellery, with same-day disbursal and flexible bullet repayment.</p>
+        <a class="apply-link" href="#apply" data-product="Gold Loan">Apply for this →</a>
+      </div>
+      <div class="product-card">
+        <h4>Loan Against Property (LAP)</h4>
+        <span class="rate">12% – 16% p.a. · up to ₹2Cr</span>
+        <p>Unlock capital against residential or commercial property, tenure up to 15 years.</p>
+        <a class="apply-link" href="#apply" data-product="Loan Against Property">Apply for this →</a>
+      </div>
+      <div class="product-card">
+        <h4>Vehicle Loan</h4>
+        <span class="rate">11% – 18% p.a. · up to 90% on-road</span>
+        <p>New and used two-wheeler, car and commercial vehicle finance, disbursed directly to the dealer.</p>
+        <a class="apply-link" href="#apply" data-product="Vehicle Loan">Apply for this →</a>
+      </div>
+      <div class="product-card">
+        <h4>Working Capital</h4>
+        <span class="rate">14% – 20% p.a. · revolving limit</span>
+        <p>A running credit line sized to your GST turnover and cash-flow cycle, not just your balance sheet.</p>
+        <a class="apply-link" href="#apply" data-product="Working Capital">Apply for this →</a>
+      </div>
+      <div class="product-card">
+        <h4>MSME Loan</h4>
+        <span class="rate">13% – 19% p.a. · up to ₹75L</span>
+        <p>Term loans for registered MSMEs, backed by GST returns and bank-statement cash-flow analysis.</p>
+        <a class="apply-link" href="#apply" data-product="MSME Loan">Apply for this →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RATES + ELIGIBILITY -->
+<section class="sec" id="rates">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="tag">Interest rates &amp; eligibility</span>
+      <h2>What it costs, and who qualifies</h2>
+    </div>
+    <div class="rates-scroll">
+      <table class="rates">
+        <thead><tr><th>Product</th><th>Rate (p.a.)</th><th>Max tenure</th><th>Processing fee</th><th>Minimum eligibility</th></tr></thead>
+        <tbody>
+          <tr><td>Personal Loan</td><td>14% – 22%</td><td>60 months</td><td>Up to 2%</td><td>Age 21–58, min. income ₹20,000/mo</td></tr>
+          <tr><td>Business Loan</td><td>15% – 24%</td><td>48 months</td><td>Up to 2.5%</td><td>2+ years business vintage</td></tr>
+          <tr><td>Gold Loan</td><td>10% – 15%</td><td>12 months</td><td>Up to 1%</td><td>Age 18+, gold ownership proof</td></tr>
+          <tr><td>Loan Against Property</td><td>12% – 16%</td><td>180 months</td><td>Up to 1.5%</td><td>Clear property title</td></tr>
+          <tr><td>Vehicle Loan</td><td>11% – 18%</td><td>84 months</td><td>Up to 2%</td><td>Age 21+, valid driving licence</td></tr>
+          <tr><td>Working Capital</td><td>14% – 20%</td><td>12 months (renewable)</td><td>Up to 1.5%</td><td>GST registration, 1+ year filings</td></tr>
+          <tr><td>MSME Loan</td><td>13% – 19%</td><td>60 months</td><td>Up to 2%</td><td>Udyam registration</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- EMI CALCULATOR -->
+<section class="sec" id="emi">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="tag">EMI calculator</span>
+      <h2>Work out your monthly instalment</h2>
+      <p>Reducing-balance formula: EMI = P × r × (1+r)ⁿ ÷ ((1+r)ⁿ − 1), where r is the monthly rate and n the tenure in months.</p>
+    </div>
+    <div class="calc-grid">
+      <div class="calc-card">
+        <div class="row">
+          <label>Loan amount <span class="v mono" id="cAmtV">₹5,00,000</span></label>
+          <input type="range" id="cAmt" min="25000" max="5000000" step="5000" value="500000">
+        </div>
+        <div class="row">
+          <label>Tenure (months) <span class="v mono" id="cTenV">36</span></label>
+          <input type="range" id="cTen" min="3" max="180" step="1" value="36">
+        </div>
+        <div class="row">
+          <label>Interest rate (% p.a.) <span class="v mono" id="cRateV">16%</span></label>
+          <input type="range" id="cRate" min="8" max="28" step="0.25" value="16">
+        </div>
+        <a class="btn btn-primary btn-full" href="#apply">Apply at this amount</a>
+      </div>
+      <div class="result-card">
+        <div class="emi-cap">Monthly EMI</div>
+        <div class="emi-big mono" id="cEmi">₹17,588</div>
+        <div class="breakup">
+          <div class="b"><div class="lbl">Principal</div><div class="val mono" id="cPrincipal">₹5,00,000</div></div>
+          <div class="b"><div class="lbl">Total interest</div><div class="val mono" id="cInterest">₹1,33,168</div></div>
+          <div class="b"><div class="lbl">Total payment</div><div class="val mono" id="cTotal">₹6,33,168</div></div>
+        </div>
+        <div class="bar"><div class="p" id="barP" style="width:79%"></div><div class="i" id="barI" style="width:21%"></div></div>
+        <div class="legend">
+          <span><i class="dot" style="background:var(--brass)"></i>Principal</span>
+          <span><i class="dot" style="background:var(--emerald)"></i>Interest</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- APPLY WIZARD -->
+<section class="sec" id="apply">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="tag">Apply for a loan</span>
+      <h2>Five short steps, submitted straight to underwriting</h2>
+      <p>Nothing here is stored on this page — the final step hands your details to our secure Zoho Creator application form.</p>
+    </div>
+
+    <div class="wizard">
+      <div class="wizard-steps" id="wizardSteps">
+        <div class="wstep active" data-step="0"><span class="num">1</span>Personal</div>
+        <div class="wstep" data-step="1"><span class="num">2</span>Loan need</div>
+        <div class="wstep" data-step="2"><span class="num">3</span>Employment</div>
+        <div class="wstep" data-step="3"><span class="num">4</span>Existing loans</div>
+        <div class="wstep" data-step="4"><span class="num">5</span>Documents</div>
+        <div class="wstep" data-step="5"><span class="num">6</span>Review &amp; submit</div>
+      </div>
+
+      <!-- STEP 1: Personal Details -->
+      <div class="wpane active" data-pane="0">
+        <div class="field-grid">
+          <div class="field"><label>Full name</label><input type="text" id="f_name" placeholder="As per PAN card"></div>
+          <div class="field"><label>Date of birth</label><input type="date" id="f_dob"></div>
+          <div class="field"><label>Mobile number</label><input type="tel" id="f_mobile" placeholder="10-digit mobile"></div>
+          <div class="field"><label>Email address</label><input type="email" id="f_email" placeholder="you@example.com"></div>
+          <div class="field"><label>PAN number</label><input type="text" id="f_pan" placeholder="ABCDE1234F" maxlength="10"></div>
+          <div class="field"><label>Aadhaar number</label><input type="text" id="f_aadhaar" placeholder="XXXX XXXX XXXX" maxlength="14">
+            <span class="hint">Used only for eKYC verification.</span></div>
+          <div class="field full"><label>Residential address</label><textarea id="f_address" rows="2" placeholder="House no, street, city, state, PIN"></textarea></div>
+        </div>
+      </div>
+
+      <!-- STEP 2: Loan requirement -->
+      <div class="wpane" data-pane="1">
+        <div class="field-grid">
+          <div class="field"><label>Loan product</label>
+            <select id="f_product">
+              <option>Personal Loan</option><option>Business Loan</option><option>Gold Loan</option>
+              <option>Loan Against Property</option><option>Vehicle Loan</option><option>Working Capital</option><option>MSME Loan</option>
+            </select>
+          </div>
+          <div class="field"><label>Loan amount required</label><input type="number" id="f_amount" placeholder="e.g. 500000"></div>
+          <div class="field"><label>Preferred tenure (months)</label><input type="number" id="f_tenure" placeholder="e.g. 36"></div>
+          <div class="field"><label>Purpose of loan</label><input type="text" id="f_purpose" placeholder="e.g. Business expansion"></div>
+        </div>
+      </div>
+
+      <!-- STEP 3: Employment / Business -->
+      <div class="wpane" data-pane="2">
+        <div class="field-grid">
+          <div class="field"><label>Employment type</label>
+            <select id="f_emptype"><option>Salaried</option><option>Self-employed professional</option><option>Business owner</option></select>
+          </div>
+          <div class="field"><label>Employer / business name</label><input type="text" id="f_employer" placeholder="Company or business name"></div>
+          <div class="field"><label>Monthly income</label><input type="number" id="f_income" placeholder="Net monthly income"></div>
+          <div class="field"><label>Years in current job / business</label><input type="number" id="f_years" placeholder="e.g. 4"></div>
+        </div>
+      </div>
+
+      <!-- STEP 4: Existing loans -->
+      <div class="wpane" data-pane="3">
+        <div class="field-grid">
+          <div class="field"><label>Do you have existing loans or credit cards?</label>
+            <select id="f_existing"><option value="No">No</option><option value="Yes">Yes</option></select>
+          </div>
+          <div class="field"><label>Total existing monthly EMI (if any)</label><input type="number" id="f_existingemi" placeholder="e.g. 8000"></div>
+          <div class="field full"><label>Existing lender(s)</label><input type="text" id="f_lenders" placeholder="e.g. HDFC Bank, Bajaj Finserv"></div>
+        </div>
+      </div>
+
+      <!-- STEP 5: Documents -->
+      <div class="wpane" data-pane="4">
+        <div class="upload-grid">
+          <div class="upload-box"><div class="name">PAN card</div><input type="file" id="f_doc_pan"></div>
+          <div class="upload-box"><div class="name">Aadhaar card</div><input type="file" id="f_doc_aadhaar"></div>
+          <div class="upload-box"><div class="name">Latest salary slip / ITR</div><input type="file" id="f_doc_income"></div>
+          <div class="upload-box"><div class="name">Bank statement (6 months)</div><input type="file" id="f_doc_bank"></div>
+        </div>
+        <p style="font-size:0.8rem;color:var(--ink-soft);margin-top:16px;">Documents are uploaded securely on the final submission form — this page never stores files.</p>
+      </div>
+
+      <!-- STEP 6: Review + Zoho embed -->
+      <div class="wpane" data-pane="5">
+        <ul class="review-list" id="reviewList"></ul>
+        <div class="embed-slot" id="applyEmbedSlot">
+          <span class="tag2">Zoho Creator form</span>
+          <p>Click "Submit application" to load the secure Zoho Creator application form, pre-filled with everything above.</p>
+        </div>
+      </div>
+
+      <div class="wizard-actions">
+        <button class="btn btn-line" id="wizardBack" style="visibility:hidden;">← Back</button>
+        <button class="btn btn-primary" id="wizardNext">Next →</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CUSTOMER PORTAL / LOGIN -->
+<section class="sec" id="portal">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="tag">Existing customers</span>
+      <h2>Track your application, manage your loan</h2>
+    </div>
+    <div class="portal-grid">
+      <div class="portal-card">
+        <h4>What's inside the customer portal</h4>
+        <ul class="portal-feature-list">
+          <li>Live application &amp; loan status</li>
+          <li>EMI schedule and outstanding balance</li>
+          <li>Download statement, sanction letter &amp; agreement</li>
+          <li>Pay an EMI or make a part-payment</li>
+          <li>Raise a support ticket</li>
+          <li>Update KYC documents</li>
+        </ul>
+        <p style="font-size:0.85rem;color:var(--ink-soft);">The portal runs on our Zoho Creator customer-facing app, secured with OTP login — it opens in a new tab.</p>
+      </div>
+      <div class="portal-card">
+        <h4>Log in to your account</h4>
+        <div class="field" style="margin-bottom:16px;"><label>Registered mobile number</label><input type="tel" id="loginMobile" placeholder="10-digit mobile"></div>
+        <button class="btn btn-primary btn-full" id="loginBtn">Send OTP &amp; continue</button>
+        <div class="embed-slot" id="portalEmbedSlot" style="margin-top:20px;">
+          <span class="tag2">Zoho Creator customer portal</span>
+          <p>This opens your Creator-hosted customer portal app in a new tab, with your mobile number passed through for OTP verification.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="sec" id="faq">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="tag">FAQs</span>
+      <h2>Common questions before you apply</h2>
+    </div>
+    <div class="faq-list">
+      <div class="faq-item">
+        <button class="faq-q">How fast is disbursal after approval?<span class="plus">+</span></button>
+        <div class="faq-a"><p>Most personal and gold loans disburse within a few hours of final approval and e-signed agreement. Property-backed and business loans take longer due to legal and valuation checks.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">Will applying affect my credit score?<span class="plus">+</span></button>
+        <div class="faq-a"><p>A soft eligibility check doesn't affect your score. A hard credit bureau pull happens only once you proceed to formal underwriting, and is disclosed to you before it happens.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">What if I want to prepay or foreclose early?<span class="plus">+</span></button>
+        <div class="faq-a"><p>Part-payments and foreclosure are available after the lock-in period stated in your agreement, subject to applicable foreclosure charges shown upfront in your sanction letter.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">Is my data shared with anyone outside Setu Finance?<span class="plus">+</span></button>
+        <div class="faq-a"><p>Your data is used only for KYC, credit assessment and servicing your loan, in line with RBI's fair practices code — it isn't sold or shared for marketing by third parties.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="sec" id="testimonials">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="tag">In their words</span>
+      <h2>Borrowers who've been through the process</h2>
+    </div>
+    <div class="testi-grid">
+      <div class="testi-card"><p class="quote">"Applied for a working capital line on a Friday evening, had the sanction letter by Monday morning."</p><div class="who">Retail distributor, Nashik</div></div>
+      <div class="testi-card"><p class="quote">"The EMI calculator matched exactly what showed up in my sanction letter — no surprise charges."</p><div class="who">Salaried applicant, Pune</div></div>
+      <div class="testi-card"><p class="quote">"Gold loan was disbursed the same afternoon I walked in with the ornaments."</p><div class="who">Small business owner, Varanasi</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="sec" id="contact" style="border-bottom:none;">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="tag">Contact</span>
+      <h2>Talk to us before you apply</h2>
+    </div>
+    <div class="contact-grid">
+      <div class="field-grid" style="align-content:start;">
+        <div class="field"><label>Your name</label><input type="text" id="ct_name"></div>
+        <div class="field"><label>Mobile number</label><input type="tel" id="ct_mobile"></div>
+        <div class="field full"><label>Message</label><textarea id="ct_msg" rows="4" placeholder="What would you like to know?"></textarea></div>
+        <div class="field full"><button class="btn btn-primary" id="ct_submit">Send message</button></div>
+      </div>
+      <div class="embed-slot" id="contactEmbedSlot">
+        <span class="tag2">Zoho Creator form</span>
+        <p>Messages submitted here are pre-filled into our Zoho Creator "Contact Enquiries" form for the support team to action.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DEVELOPER / INTEGRATION NOTES -->
+<div class="devnotes">
+  <div class="wrap">
+    <details class="devnotes">
+      <summary>Zoho Creator integration notes (for the developer wiring this up)</summary>
+      <div class="content">
+        <p>This site is deliberately built with no backend of its own — every form hands off to a Zoho Creator public form instead of posting anywhere on this page. Three integration points, all following the same pattern:</p>
+        <h5>1. Where the config lives</h5>
+        <pre id="configPreview">const ZOHO = {
+  applyFormUrl:   "https://creatorapp.zoho.in/OWNER/APP_LINK_NAME/form-embed/APPLY_FORM_LINK_NAME",
+  contactFormUrl: "https://creatorapp.zoho.in/OWNER/APP_LINK_NAME/form-embed/CONTACT_FORM_LINK_NAME",
+  portalUrl:      "https://creatorapp.zoho.in/OWNER/APP_LINK_NAME/PORTAL_PAGE_LINK_NAME"
+};</pre>
+        <p>Replace <code>OWNER</code>, <code>APP_LINK_NAME</code> and the form link names with your actual values from Zoho Creator → your app → Forms → the specific form → Embed. Search for <code>const ZOHO =</code> near the bottom of this file's script tag and edit it there.</p>
+        <h5>2. Pre-filling the embedded form</h5>
+        <p>Zoho Creator's public forms accept field values via URL query parameters matching each field's <em>link name</em>, e.g. <code>?Full_Name=Khushi&amp;Loan_Amount=500000</code>. The script below builds that query string from the wizard's fields — you only need to rename the keys in <code>fieldMap</code> to match your actual Creator field link names (check them under each field's Advanced settings in Creator's form builder).</p>
+        <h5>3. Why an iframe embed instead of a direct API call</h5>
+        <p>Posting straight to Creator's REST API from browser JavaScript would mean exposing an API token to anyone who views this page's source — a real security problem. The embed approach keeps the token server-side (Zoho hosts it), and the form still submits directly into your Creator report, ready for your existing LOS workflow to pick up.</p>
+        <h5>4. Customer portal / login</h5>
+        <p>OTP-based login needs session handling, which belongs in a Creator custom page or a small Deluge-based API — not in static HTML. The "Log in" button here just opens <code>ZOHO.portalUrl</code> in a new tab with the mobile number appended, so your Creator app can pick up from there.</p>
+      </div>
+    </details>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap">
+    <p class="disclaimer" style="font-size:0.78rem;color:var(--ink-soft);max-width:80ch;">Setu Finance is an illustrative brand built as a front-end template for an NBFC lending workflow. Rates, tenures and eligibility figures shown are indicative placeholders — replace them with your actual sanctioned terms before going live. This page does not itself hold an RBI registration or process real loan data until wired to a real Zoho Creator backend.</p>
+    <div class="fine" style="margin-top:24px;">
+      <span>© 2026 Setu Finance</span>
+      <span class="mono">Front-end template · Zoho Creator ready</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ---------- CONFIG: replace with your real Zoho Creator values ---------- */
+const ZOHO = {
+  applyFormUrl:   "https://creatorapp.zoho.in/OWNER/APP_LINK_NAME/form-embed/APPLY_FORM_LINK_NAME",
+  contactFormUrl: "https://creatorapp.zoho.in/OWNER/APP_LINK_NAME/form-embed/CONTACT_FORM_LINK_NAME",
+  portalUrl:      "https://creatorapp.zoho.in/OWNER/APP_LINK_NAME/PORTAL_PAGE_LINK_NAME"
+};
+/* Map wizard field ids -> your Zoho Creator field link names */
+const fieldMap = {
+  f_name:"Full_Name", f_dob:"Date_of_Birth", f_mobile:"Mobile_Number", f_email:"Email",
+  f_pan:"PAN_Number", f_aadhaar:"Aadhaar_Number", f_address:"Address",
+  f_product:"Loan_Product", f_amount:"Loan_Amount", f_tenure:"Tenure_Months", f_purpose:"Purpose",
+  f_emptype:"Employment_Type", f_employer:"Employer_Business_Name", f_income:"Monthly_Income", f_years:"Years_In_Job",
+  f_existing:"Has_Existing_Loans", f_existingemi:"Existing_EMI", f_lenders:"Existing_Lenders"
+};
+
+/* ---------- EMI MATH ---------- */
+function calcEMI(P, annualRatePct, months){
+  const r = annualRatePct/12/100;
+  if(r===0) return P/months;
+  const factor = Math.pow(1+r, months);
+  return (P*r*factor)/(factor-1);
+}
+function fmtINR(n){
+  return "₹"+Math.round(n).toLocaleString('en-IN');
+}
+
+/* Hero mini calculator */
+function wireCalc(prefix){
+  const amt = document.getElementById(prefix+'Amt');
+  const ten = document.getElementById(prefix+'Ten');
+  const rate = document.getElementById(prefix+'Rate');
+  const amtV = document.getElementById(prefix+'AmtV');
+  const tenV = document.getElementById(prefix+'TenV');
+  const rateV = document.getElementById(prefix+'RateV');
+  const emiOut = document.getElementById(prefix+'Emi');
+  function update(){
+    const P = parseFloat(amt.value), n = parseFloat(ten.value), R = parseFloat(rate.value);
+    amtV.textContent = fmtINR(P);
+    tenV.textContent = n;
+    rateV.textContent = R+"%";
+    const emi = calcEMI(P,R,n);
+    emiOut.textContent = fmtINR(emi);
+  }
+  [amt,ten,rate].forEach(el=>el.addEventListener('input',update));
+  update();
+}
+wireCalc('h');
+
+/* Full EMI calculator with breakup */
+function wireFullCalc(){
+  const amt = document.getElementById('cAmt');
+  const ten = document.getElementById('cTen');
+  const rate = document.getElementById('cRate');
+  const amtV = document.getElementById('cAmtV');
+  const tenV = document.getElementById('cTenV');
+  const rateV = document.getElementById('cRateV');
+  const emiOut = document.getElementById('cEmi');
+  const principalOut = document.getElementById('cPrincipal');
+  const interestOut = document.getElementById('cInterest');
+  const totalOut = document.getElementById('cTotal');
+  const barP = document.getElementById('barP');
+  const barI = document.getElementById('barI');
+  function update(){
+    const P = parseFloat(amt.value), n = parseFloat(ten.value), R = parseFloat(rate.value);
+    amtV.textContent = fmtINR(P);
+    tenV.textContent = n;
+    rateV.textContent = R+"%";
+    const emi = calcEMI(P,R,n);
+    const total = emi*n;
+    const interest = total-P;
+    emiOut.textContent = fmtINR(emi);
+    principalOut.textContent = fmtINR(P);
+    interestOut.textContent = fmtINR(interest);
+    totalOut.textContent = fmtINR(total);
+    const pPct = Math.max(5, Math.min(95,(P/total)*100));
+    barP.style.width = pPct+"%";
+    barI.style.width = (100-pPct)+"%";
+  }
+  [amt,ten,rate].forEach(el=>el.addEventListener('input',update));
+  update();
+}
+wireFullCalc();
+
+/* Product card -> preselect product in wizard */
+document.querySelectorAll('.apply-link').forEach(link=>{
+  link.addEventListener('click',()=>{
+    const product = link.getAttribute('data-product');
+    const sel = document.getElementById('f_product');
+    if(sel && product){
+      for(const opt of sel.options){ if(opt.value===product){ sel.value = product; } }
+    }
+  });
+});
+
+/* ---------- APPLY WIZARD ---------- */
+const panes = document.querySelectorAll('.wpane');
+const steps = document.querySelectorAll('.wstep');
+const nextBtn = document.getElementById('wizardNext');
+const backBtn = document.getElementById('wizardBack');
+let current = 0;
+
+function renderWizard(){
+  panes.forEach((p,i)=> p.classList.toggle('active', i===current));
+  steps.forEach((s,i)=>{
+    s.classList.toggle('active', i===current);
+    s.classList.toggle('done', i<current);
+  });
+  backBtn.style.visibility = current===0 ? 'hidden' : 'visible';
+  nextBtn.textContent = current===panes.length-1 ? 'Submit application' : 'Next →';
+  if(current===panes.length-1){ buildReview(); }
+}
+
+function buildReview(){
+  const list = document.getElementById('reviewList');
+  const entries = [
+    ['Full name', document.getElementById('f_name').value],
+    ['Mobile', document.getElementById('f_mobile').value],
+    ['Email', document.getElementById('f_email').value],
+    ['PAN', document.getElementById('f_pan').value],
+    ['Loan product', document.getElementById('f_product').value],
+    ['Loan amount', document.getElementById('f_amount').value],
+    ['Tenure (months)', document.getElementById('f_tenure').value],
+    ['Employment type', document.getElementById('f_emptype').value],
+    ['Monthly income', document.getElementById('f_income').value],
+    ['Existing loans', document.getElementById('f_existing').value],
+  ];
+  list.innerHTML = entries.map(([k,v])=>`<li><span>${k}</span><span>${v && v.length ? v : '—'}</span></li>`).join('');
+}
+
+function buildZohoQuery(){
+  const params = new URLSearchParams();
+  Object.entries(fieldMap).forEach(([elId, zohoField])=>{
+    const el = document.getElementById(elId);
+    if(el && el.value){ params.append(zohoField, el.value); }
+  });
+  return params.toString();
+}
+
+nextBtn.addEventListener('click', ()=>{
+  if(current < panes.length-1){
+    current++;
+    renderWizard();
+    document.querySelector('.wizard').scrollIntoView({behavior:'smooth', block:'start'});
+  } else {
+    const slot = document.getElementById('applyEmbedSlot');
+    const query = buildZohoQuery();
+    const url = ZOHO.applyFormUrl + (ZOHO.applyFormUrl.includes('?') ? '&' : '?') + query;
+    slot.classList.add('live');
+    slot.innerHTML = `<span class="tag2">Zoho Creator form — prefilled &amp; ready</span>
+      <p style="margin-bottom:10px;">If this shows blank, replace the placeholder OWNER/APP_LINK_NAME values in ZOHO.applyFormUrl with your real Creator app details.</p>
+      <iframe src="${url}" title="Loan application form"></iframe>`;
+  }
+});
+backBtn.addEventListener('click', ()=>{
+  if(current>0){ current--; renderWizard(); }
+});
+renderWizard();
+
+/* ---------- CONTACT FORM -> ZOHO EMBED ---------- */
+document.getElementById('ct_submit').addEventListener('click', (e)=>{
+  e.preventDefault();
+  const name = document.getElementById('ct_name').value;
+  const mobile = document.getElementById('ct_mobile').value;
+  const msg = document.getElementById('ct_msg').value;
+  const params = new URLSearchParams({ Name:name, Mobile_Number:mobile, Message:msg });
+  const url = ZOHO.contactFormUrl + (ZOHO.contactFormUrl.includes('?') ? '&' : '?') + params.toString();
+  const slot = document.getElementById('contactEmbedSlot');
+  slot.classList.add('live');
+  slot.innerHTML = `<span class="tag2">Zoho Creator form — prefilled &amp; ready</span>
+    <p style="margin-bottom:10px;">Replace the placeholder values in ZOHO.contactFormUrl with your real Creator app details if this is blank.</p>
+    <iframe src="${url}" title="Contact form"></iframe>`;
+});
+
+/* ---------- LOGIN -> ZOHO PORTAL LINK OUT ---------- */
+document.getElementById('loginBtn').addEventListener('click', ()=>{
+  const mobile = document.getElementById('loginMobile').value;
+  const url = ZOHO.portalUrl + (ZOHO.portalUrl.includes('?') ? '&' : '?') + 'Mobile_Number=' + encodeURIComponent(mobile||'');
+  window.open(url, '_blank');
+});
+
+/* ---------- FAQ ACCORDION ---------- */
+document.querySelectorAll('.faq-q').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    btn.closest('.faq-item').classList.toggle('open');
+  });
+});
+</script>
+
+</body>
+</html>
